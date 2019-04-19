@@ -1,0 +1,176 @@
+import time
+import turtle as t
+import random
+cs_lec = [
+    [("Mon","900","1020","cs_lec"),("Wed","900","1020","cs_lec")]
+    ]
+cs_lab = [
+    [("Fri","830","1120","cs_lab")]
+    ]
+expos = [
+    [("Tue","930","1045","expos"),("Thu","930","1045","expos")]
+    ]
+math1 = [#
+    [("Mon","900","1020","math1"),("Wed","900","1020","math1"),("Tue","1000","1050","math1")],
+    [("Mon","900","1020","math1"),("Wed","900","1020","math1"),("Tue","1100","1150","math1")],
+    [("Mon","900","1020","math1"),("Wed","900","1020","math1"),("Tue","1300","1350","math1")],
+    [("Mon","900","1020","math1"),("Wed","900","1020","math1"),("Tue","1400","1450","math1")],
+    [("Mon","1230","1350","math1"),("Wed","1230","1350","math1"),("Thu","1000","1050","math1")],
+    [("Mon","1230","1350","math1"),("Wed","1230","1350","math1"),("Thu","1100","1150","math1")],
+    [("Mon","1230","1350","math1"),("Wed","1230","1350","math1"),("Thu","1300","1350","math1")],
+    [("Mon","1230","1350","math1"),("Wed","1230","1350","math1"),("Thu","1400","1450","math1")]
+    ]
+math2 = [
+    [("Mon","1030","1220","math2"),("Wed","1030","1220","math2")],
+    [("Mon","1600","1750","math2"),("Wed","1600","1750","math2")],
+    [("Mon","1800","1950","math2"),("Wed","1800","1950","math2")]
+    ]
+exam1 =[
+    [("Tue","1230","1350","Exam1")]
+    ]
+exam2 =[#
+    [("Fri","900","1050","Exam2")]
+    ]
+def drawboard(ls):
+    t.color("black")
+    t.pensize(2)
+    t.penup()
+    t.goto(-300,300)
+    t.pendown()
+    t.fd(600)
+    t.penup()
+    t.goto(-300,-300)
+    t.pendown()
+    t.fd(600)
+    t.pensize(1)
+    for i in range(6):
+        t.penup()
+        t.goto(-300 + i*120,300)
+        t.pendown()
+        t.goto(-300 + i*120,-300)
+    ls = sorted(ls,key=lambda x:x[-1])
+    record = ls[0][-1]
+    for i in ls:
+        if i[0] == "Mon":
+            x = -300
+        elif i[0] == "Tue":
+            x = -180
+        elif i[0] == "Wed":
+            x = -60
+        elif i[0] == "Thu":
+            x = 60
+        elif i[0] == "Fri":
+            x = 180
+        t.penup()
+        t.goto(x,300-(int(i[1])-800)/2)
+        if i[-1] != record or i == ls[0]:
+            t.colormode(255)# random color
+            a = random.randrange(100,255,10)
+            b = random.randrange(100,255,10)
+            c = random.randrange(100,255,10)
+            t.color((a,b,c))
+            record = i[-1]
+        t.begin_fill()
+        t.pendown()
+        t.fd(120)
+        t.rt(90)
+        t.fd((int(i[2]) - int(i[1]))/2)
+        t.rt(90)
+        t.fd(120)
+        t.rt(90)
+        t.fd((int(i[2]) - int(i[1]))/2)
+        t.rt(90)
+        t.end_fill()
+        t.penup()
+        t.goto(x+5,300-(int(i[1])-800)/2-25)
+        t.pencolor("black")
+        t.write(i[-1]+" "+i[1]+"-"+i[2],font=("Arial",15, "normal"))
+        t.pencolor((a,b,c))
+        
+
+def compare(tuple1,tuple2):
+    # compare two tuples, each tuple has a format(date,start_time,end_time,classname)
+    # if no time conflict, return true
+    if tuple1[0] != tuple2[0]: # if different date
+        return True
+    else:
+        if int(tuple1[1]) >= int(tuple2[2]) or int(tuple2[1]) >= int(tuple1[2]):
+            # same day but no time conflict
+            return True
+    return False
+
+def calendar(class1,class2):
+    # In this function, I use four for loops to locate each item
+    # class1 or class2 are lists of lists of tuples
+    # for example, expos
+    """
+    expos = [
+    [("Mon","1630","1745","expos"),("Wed","1630","1745","expos")], -> possibility 1
+    [("Mon","1500","1615","expos"),("Wed","1500","1615","expos")], -> possibility 2
+    [("Tue","930","1045","expos"),("Thu","930","1045","expos")]    -> possibility 3
+    ]
+    There are three semi-lists in expos, meaning three possiblities I can choose from
+    Inside semi-list, two tuples means two time periods of class each week
+
+    This function returns a list which has the same format as input lists
+    exam1 =[
+    [("Tue","1230","1350","Exam1")]
+    ]
+    If calendar(expos,exam1)
+    it will return
+    [
+    [("Mon","1630","1745","expos"),("Wed","1630","1745","expos"),("Tue","1230","1350","Exam1")], -> possibility 1
+    [("Mon","1500","1615","expos"),("Wed","1500","1615","expos"),("Tue","1230","1350","Exam1")], -> possibility 2
+    [("Tue","930","1045","expos"),("Thu","930","1045","expos"),("Tue","1230","1350","Exam1")]    -> possibility 3
+    ]
+    
+    At this point, you can assume two classes as one class
+    This uniform format makes it convenient to reuse the function.
+    After inputting all class with this function, we could get a list of all the classes
+    of all possibilities
+    """
+    lst_final = []
+    for itemx in class1:
+        for itemy in class2:
+            add = True
+            for x in itemx:
+                for y in itemy:
+                    if compare(x,y):
+                        pass
+                    else:
+                        add = False
+            if add:
+                lst = itemx + itemy
+                lst_final.append(lst)
+    return lst_final
+
+def main():
+    ls = calendar(calendar(calendar(calendar(exam1,cs_lec),expos),cs_lab),math2)
+    t.tracer(0,0)
+    t.hideturtle()
+    # I don't like to take over three courses on one day, so I make some limitations
+    for i in ls:
+        a,b,c,d,e =0,0,0,0,0
+        for j in i:
+            if j[0] == "Mon":
+                a += 1
+            elif j[0] == "Tue":
+                b += 1
+            elif j[0] == "Wed":
+                c += 1
+            elif j[0] == "Thu":
+                d += 1
+            elif j[0] == "Fri":
+                e += 1
+        if a > 3 or b > 3 or c > 3 or d > 3 or e > 3:
+            pass
+        else:
+            t.clear()
+            drawboard(i)
+            t.update()
+            time.sleep(3)
+main()
+    
+
+        
+    
